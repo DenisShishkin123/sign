@@ -6,7 +6,7 @@ import argparse
 from PDFNetPython3.PDFNetPython import *
 from typing import Tuple
 
-#
+
 def createKeyPair(type, bits):
     """
     Create a public/private key pair
@@ -80,53 +80,90 @@ def load():
     print("############################################################################")
     return True
 
+
+
+#  python sign.py -i ".\static\Letter of confirmation.pdf" -s "BM" -x 330 -y 280
+
 # подписание документа
 def sign_file(input_file: str, signatureID: str, x_coordinate: int, 
             y_coordinate: int, pages: Tuple = None, output_file: str = None
               ):
     """Sign a PDF file"""
+    """Подпишите PDF-файл"""
+
+    # Выходной файл автоматически генерируется со словом signed, добавленным в его конце
     # An output file is automatically generated with the word signed added at its end
     if not output_file:
         output_file = (os.path.splitext(input_file)[0]) + "_signed.pdf"
+
+    # Инициализировать библиотеку
     # Initialize the library
-    PDFNet.Initialize()
+    LicenseKey = "demo:1678358255416:7d068c52030000000092d70fd9a3ccde4c73f71626a4933548b64e6e26"
+    PDFNet.Initialize(LicenseKey)
     doc = PDFDoc(input_file)
+
+    # Создайте поле подписи
     # Create a signature field
     sigField = SignatureWidget.Create(doc, Rect(
-        x_coordinate, y_coordinate, x_coordinate+100, y_coordinate+50), signatureID)
+        x_coordinate, y_coordinate, x_coordinate+100, y_coordinate+50), signatureID)  # TODO signatureID !
+    # --signatureID или -s: идентификатор, назначаемый виджету подписи. (в случае, если несколько подписантов должны подписать один и тот же PDF-документ).
+
+
+    # Повторять по страницам документа
     # Iterate throughout document pages
     for page in range(1, (doc.GetPageCount() + 1)):
+
+        # Если требуется для определенных страниц
         # If required for specific pages
         if pages:
             if str(page) not in pages:
                 continue
         pg = doc.GetPage(page)
+
+        # Создайте текстовое поле подписи и разместите его на странице
         # Create a signature text field and push it on the page
         pg.AnnotPushBack(sigField)
+
+    # Фирменное изображение
     # Signature image
     sign_filename = os.path.dirname(
         os.path.abspath(__file__)) + "\static\signature.jpg"
+
+
+    # Самоподписанный сертификат
     # Self signed certificate
     pk_filename = os.path.dirname(
-        os.path.abspath(__file__)) + "\static\container.pfx"
+        os.path.abspath(__file__)) + "\static\container.pfx"  # TODO container.pfx
+
+    # Извлеките поле подписи.
     # Retrieve the signature field.
     approval_field = doc.GetField(signatureID)
     approval_signature_digsig_field = DigitalSignatureField(approval_field)
+
+    # Добавьте внешний вид в поле подписи.
     # Add appearance to the signature field.
     img = Image.Create(doc.GetSDFDoc(), sign_filename)
     found_approval_signature_widget = SignatureWidget(
         approval_field.GetSDFObj())
     found_approval_signature_widget.CreateSignatureAppearance(img)
+
+    # Подготовьте подпись и обработчик подписи к подписанию.
     # Prepare the signature and signature handler for signing.
-    approval_signature_digsig_field.SignOnNextSave(pk_filename, '')
+    approval_signature_digsig_field.SignOnNextSave(pk_filename, '123M')
+
+    # Подписание будет выполнено во время следующей операции инкрементного сохранения.
     # The signing will be done during the following incremental save operation.
     doc.Save(output_file, SDFDoc.e_incremental)
+
+#вывод
+    # Разработайте краткое описание процесса
     # Develop a Process Summary
     summary = {
         "Input File": input_file, "Signature ID": signatureID, 
         "Output File": output_file, "Signature File": sign_filename, 
         "Certificate File": pk_filename
     }
+    # Краткое описание печати
     # Printing Summary
     print("## Summary ########################################################")
     print("\n".join("{}:{}".format(i, j) for i, j in summary.items()))
@@ -206,16 +243,17 @@ def parse_args():
     return args
 
 '''
---loadили -l: Инициализируйте параметры конфигурации, создав самозаверяющий сертификат. Этот шаг следует выполнять один раз или по мере необходимости.
---input_pathили -i: используется для ввода пути к файлу или папке для обработки, этот параметр связан с is_valid_path()ранее определенной функцией.
---signatureIDили -s: идентификатор, назначаемый виджету подписи. (в случае, если несколько подписантов должны подписать один и тот же PDF-документ).
---pagesили -p: страницы, которые нужно подписать.
---x_coordinateили -xи --y_coordinateили -y: указывает расположение подписи на странице.
---output_fileили -o: путь к выходному файлу. Заполнение этого аргумента ограничено выбором файла в качестве входных данных, а не каталога.
---recursiveили -r: обрабатывать папку рекурсивно или нет. Заполнение этого аргумента ограничено выбором каталога. 
+--load или -l: Инициализируйте параметры конфигурации, создав самозаверяющий сертификат. Этот шаг следует выполнять один раз или по мере необходимости.
+--input_path или -i: используется для ввода пути к файлу или папке для обработки, этот параметр связан с is_valid_path()ранее определенной функцией.
+--signatureID или -s: идентификатор, назначаемый виджету подписи. (в случае, если несколько подписантов должны подписать один и тот же PDF-документ).
+--pages или -p: страницы, которые нужно подписать.
+--x_coordinate или -xи --y_coordinateили -y: указывает расположение подписи на странице.
+--output_file или -o: путь к выходному файлу. Заполнение этого аргумента ограничено выбором файла в качестве входных данных, а не каталога.
+--recursive или -r: обрабатывать папку рекурсивно или нет. Заполнение этого аргумента ограничено выбором каталога. 
 '''
 
 if __name__ == '__main__':
+    # Синтаксический анализ аргументов командной строки, введенных пользователем
     # Parsing command line arguments entered by user
     args = parse_args()
     if args['load'] == True:

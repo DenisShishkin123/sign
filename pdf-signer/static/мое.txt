@@ -1,0 +1,26 @@
+
+
+python sign.py -i ".\static\Letter of confirmation.pdf" -s "BM" -x 330 -y 280
+
+
+## Command Arguments #################################################
+load:False                                    
+input_path:.\static\Letter of confirmation.pdf
+signatureID:BM                                
+pages:None
+x_coordinate:330
+y_coordinate:280
+output_file:None
+######################################################################
+
+PDFNet is running in demo mode.
+Package: base
+Package: digital_sign
+## Summary ########################################################
+Input File:.\static\Letter of confirmation.pdf
+Signature ID:BM
+Output File:.\static\Letter of confirmation_signed.pdf
+Signature File:C:\Users\Denis\Documents\projects\sign\pdf-signer\static\signature.jpg
+Certificate File:C:\Users\Denis\Documents\projects\sign\pdf-signer\static\container.pfx
+###################################################################
+
