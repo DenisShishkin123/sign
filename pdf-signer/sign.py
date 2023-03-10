@@ -83,6 +83,21 @@ def load():
 
 
 #  python sign.py -i ".\static\Letter of confirmation.pdf" -s "BM" -x 330 -y 280
+#  python sign.py -i ".\static\Letter of confirmation.pdf" -s "BM" -x 150 -y 200
+
+"""
+входные данные:
+- документ
+* страницы
+* координаты подписи
+* выходной документ
+
+- подписант
+- пароль
+* ЭП - сертификат
+* ЭП - факсимиле 
+"""
+
 
 # подписание документа
 def sign_file(input_file: str, signatureID: str, x_coordinate: int, 
@@ -105,8 +120,7 @@ def sign_file(input_file: str, signatureID: str, x_coordinate: int,
     # Создайте поле подписи
     # Create a signature field
     sigField = SignatureWidget.Create(doc, Rect(
-        x_coordinate, y_coordinate, x_coordinate+100, y_coordinate+50), signatureID)  # TODO signatureID !
-    # --signatureID или -s: идентификатор, назначаемый виджету подписи. (в случае, если несколько подписантов должны подписать один и тот же PDF-документ).
+        x_coordinate, y_coordinate, x_coordinate+100, y_coordinate+50), signatureID)
 
 
     # Повторять по страницам документа
@@ -127,13 +141,16 @@ def sign_file(input_file: str, signatureID: str, x_coordinate: int,
     # Фирменное изображение
     # Signature image
     sign_filename = os.path.dirname(
-        os.path.abspath(__file__)) + "\static\signature.jpg"
+        # os.path.abspath(__file__)) + "\static\signature.jpg"
+        os.path.abspath(__file__)) + "\static\signature.png"
 
 
     # Самоподписанный сертификат
     # Self signed certificate
     pk_filename = os.path.dirname(
-        os.path.abspath(__file__)) + "\static\container.pfx"  # TODO container.pfx
+        # os.path.abspath(__file__)) + "\static\container.pfx"  # TODO container.pfx
+        # os.path.abspath(__file__)) + "\static\TESTcrl.pfx"  # TODO container.pfx
+        os.path.abspath(__file__)) + "\static\TESTcrl8080.pfx"  # TODO container.pfx
 
     # Извлеките поле подписи.
     # Retrieve the signature field.
@@ -149,11 +166,13 @@ def sign_file(input_file: str, signatureID: str, x_coordinate: int,
 
     # Подготовьте подпись и обработчик подписи к подписанию.
     # Prepare the signature and signature handler for signing.
-    approval_signature_digsig_field.SignOnNextSave(pk_filename, '123M')
+    # approval_signature_digsig_field.SignOnNextSave(pk_filename, '123M')
+    approval_signature_digsig_field.SignOnNextSave(pk_filename, '123')
 
     # Подписание будет выполнено во время следующей операции инкрементного сохранения.
     # The signing will be done during the following incremental save operation.
     doc.Save(output_file, SDFDoc.e_incremental)
+
 
 #вывод
     # Разработайте краткое описание процесса
@@ -170,6 +189,8 @@ def sign_file(input_file: str, signatureID: str, x_coordinate: int,
     print("###################################################################")
     return True
 
+
+
 # подписание нескольких документов
 def sign_folder(**kwargs):
     """Sign all PDF Files within a specified path"""
@@ -180,6 +201,8 @@ def sign_folder(**kwargs):
     y_coordinate = int(kwargs.get('y_coordinate'))
     # Run in recursive mode
     recursive = kwargs.get('recursive')
+
+
     # Loop though the files within the input folder.
     for foldername, dirs, filenames in os.walk(input_folder):
         for filename in filenames:
@@ -274,3 +297,6 @@ if __name__ == '__main__':
                 x_coordinate=int(args['x_coordinate']), y_coordinate=int(args['y_coordinate']),
                 pages=args['pages'], recursive=args['recursive']
             )
+
+
+
