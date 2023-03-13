@@ -1,3 +1,8 @@
+# https://www.thepythoncode.com/article/sign-pdf-files-in-python
+# https://morioh.com/p/a6ebe3ec0b58
+# https://docs.apryse.com/documentation/windows/get-started/python3/
+
+
 # Import Libraries
 import OpenSSL
 import os

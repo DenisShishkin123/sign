@@ -1,2 +1,4 @@
 PDFNetPython3==9.4.0
 pyOpenSSL==23.0.0
+pillow==9.4.0
+imgkit==1.2.3
